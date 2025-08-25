@@ -1,2 +1,0 @@
-# nailya-vogue
-nailya-vogue
