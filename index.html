@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nailya-Vogue - Интернет-магазин одежды</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .cart-floating {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        
+        .banner-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .category-card:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Плавающая корзина -->
+    <div class="cart-floating">
+        <button onclick="toggleCart()" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-full shadow-lg relative">
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">0</span>
+        </button>
+        <div class="mt-2 text-center">
+            <div class="bg-white px-3 py-1 rounded-full shadow text-sm font-semibold">
+                <span id="cart-total">0</span> сом
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-purple-600">Nailya-Vogue</h1>
+                </div>
+                
+                <!-- Поиск -->
+                <div class="flex-1 max-w-md mx-8">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Поиск товаров..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <!-- Язык и меню -->
+                <div class="flex items-center space-x-4">
+                    <select id="language-select" class="border border-gray-300 rounded px-3 py-1">
+                        <option value="ru">Русский</option>
+                        <option value="ky">Кыргызский</option>
+                    </select>
+                    
+                    <button onclick="toggleCatalog()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-bars mr-2"></i><span data-translate="catalog">Каталог</span>
+                    </button>
+                    
+                    <button onclick="toggleFavorites()" class="text-gray-600 hover:text-purple-600">
+                        <i class="fas fa-heart text-xl"></i>
+                        <span id="favorites-count" class="ml-1">0</span>
+                    </button>
+                    
+                    <button onclick="toggleAdmin()" class="text-gray-600 hover:text-blue-600" title="Админ панель (Ctrl+Shift+A)">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Каталог (выпадающий) -->
+    <div id="catalog-dropdown" class="hidden bg-white shadow-lg border-t">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <button onclick="filterByCategory('платья')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-tshirt text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Платья</div>
+                    <div class="text-sm text-gray-500">24 товара</div>
+                </button>
+                <button onclick="filterByCategory('блузки')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-female text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Блузки</div>
+                    <div class="text-sm text-gray-500">18 товаров</div>
+                </button>
+                <button onclick="filterByCategory('юбки')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-user-tie text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Юбки</div>
+                    <div class="text-sm text-gray-500">15 товаров</div>
+                </button>
+                <button onclick="filterByCategory('брюки')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-male text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Брюки</div>
+                    <div class="text-sm text-gray-500">22 товара</div>
+                </button>
+                <button onclick="filterByCategory('аксессуары')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-gem text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Аксессуары</div>
+                    <div class="text-sm text-gray-500">31 товар</div>
+                </button>
+                <button onclick="filterByCategory('обувь')" class="category-card p-4 border rounded-lg hover:bg-purple-50 text-center">
+                    <i class="fas fa-shoe-prints text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Обувь</div>
+                    <div class="text-sm text-gray-500">19 товаров</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Категории быстрого доступа -->
+        <div class="py-8">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                <button onclick="filterByCategory('платья')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-tshirt text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Платья</div>
+                </button>
+                <button onclick="filterByCategory('блузки')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-female text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Блузки</div>
+                </button>
+                <button onclick="filterByCategory('юбки')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-user-tie text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Юбки</div>
+                </button>
+                <button onclick="filterByCategory('брюки')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-male text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Брюки</div>
+                </button>
+                <button onclick="filterByCategory('аксессуары')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-gem text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Аксессуары</div>
+                </button>
+                <button onclick="filterByCategory('обувь')" class="category-card bg-white p-4 rounded-lg shadow hover:shadow-lg text-center">
+                    <i class="fas fa-shoe-prints text-3xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Обувь</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Баннер -->
+        <div class="banner-slide rounded-lg p-8 text-white text-center mb-8">
+            <h2 class="text-4xl font-bold mb-4">Новая коллекция весна-лето 2024</h2>
+            <p class="text-xl mb-6">Стильная одежда для современных женщин</p>
+            <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100">
+                Смотреть коллекцию
+            </button>
+        </div>
+
+        <!-- Популярные товары -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-6" data-translate="popular">Популярные товары</h2>
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Товары будут добавлены через JavaScript -->
+            </div>
+        </div>
+
+        <!-- О нас -->
+        <div class="bg-white rounded-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-center mb-8" data-translate="aboutUs">О нас</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                <div class="p-4">
+                    <i class="fas fa-shipping-fast text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2" data-translate="fastDelivery">Быстрая доставка</h3>
+                    <p class="text-gray-600" data-translate="fastDeliveryDesc">Доставка по Бишкеку в течение дня</p>
+                </div>
+                <div class="p-4">
+                    <i class="fas fa-shield-alt text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2" data-translate="qualityGuarantee">Гарантия качества</h3>
+                    <p class="text-gray-600" data-translate="qualityGuaranteeDesc">Только качественные материалы</p>
+                </div>
+                <div class="p-4">
+                    <i class="fas fa-tags text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2" data-translate="affordablePrices">Доступные цены</h3>
+                    <p class="text-gray-600" data-translate="affordablePricesDesc">Лучшие цены на рынке</p>
+                </div>
+                <div class="p-4">
+                    <i class="fas fa-heart text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2" data-translate="individualApproach">Индивидуальный подход</h3>
+                    <p class="text-gray-600" data-translate="individualApproachDesc">Персональные консультации</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Как купить -->
+        <div class="bg-purple-50 rounded-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-center mb-8" data-translate="howToBuy">Как купить</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
+                    <h3 class="font-semibold mb-2" data-translate="selectProduct">Выберите товар</h3>
+                    <p class="text-gray-600" data-translate="selectProductDesc">Просмотрите каталог и добавьте понравившиеся товары в корзину</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
+                    <h3 class="font-semibold mb-2" data-translate="placeOrder">Оформите заказ</h3>
+                    <p class="text-gray-600" data-translate="placeOrderDesc">Заполните форму с контактными данными</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
+                    <h3 class="font-semibold mb-2" data-translate="receiveProduct">Получите товар</h3>
+                    <p class="text-gray-600" data-translate="receiveProductDesc">Мы свяжемся с вами для подтверждения и доставки</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white rounded-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-center mb-8" data-translate="faq">Частые вопросы</h2>
+            <div class="space-y-4">
+                <div class="border-b pb-4">
+                    <button onclick="toggleFAQ(1)" class="w-full text-left font-semibold flex justify-between items-center">
+                        <span data-translate="howToOrder">Как оформить заказ?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="faq-1" class="hidden mt-2 text-gray-600">
+                        Добавьте товары в корзину, нажмите "Оформить заказ" и заполните форму с контактными данными.
+                    </div>
+                </div>
+                <div class="border-b pb-4">
+                    <button onclick="toggleFAQ(2)" class="w-full text-left font-semibold flex justify-between items-center">
+                        <span data-translate="paymentMethods">Способы оплаты</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="faq-2" class="hidden mt-2 text-gray-600">
+                        Принимаем наличные при получении, банковские карты и электронные кошельки.
+                    </div>
+                </div>
+                <div class="border-b pb-4">
+                    <button onclick="toggleFAQ(3)" class="w-full text-left font-semibold flex justify-between items-center">
+                        <span data-translate="returnPolicy">Возможен ли возврат товара?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="faq-3" class="hidden mt-2 text-gray-600">
+                        Да, возврат возможен в течение 14 дней при сохранении товарного вида и этикеток.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карта -->
+        <div class="bg-white rounded-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-center mb-6" data-translate="onMap">Мы на карте</h2>
+            <div class="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-map-marker-alt text-4xl text-purple-600 mb-2"></i>
+                    <p class="font-semibold">г. Бишкек, ул. Чуй 123</p>
+                    <p class="text-gray-600">Торговый центр "Центр"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Nailya-Vogue</h3>
+                    <p class="text-gray-300">Стильная одежда для современных женщин</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4" data-translate="contacts">Контакты</h4>
+                    <p class="text-gray-300 mb-2">+996 505 191 993</p>
+                    <p class="text-gray-300 mb-2">info@nailyavogue.kg</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4" data-translate="workSchedule">График работы</h4>
+                    <p class="text-gray-300 mb-2">Пн-Пт: 9:00-20:00</p>
+                    <p class="text-gray-300 mb-2">Сб-Вс: 10:00-18:00</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4" data-translate="address">Адрес</h4>
+                    <p class="text-gray-300">г. Бишкек, ул. Ахунбаева 166 </p>
+                    <p class="text-gray-300">Торговый центр "Центр"</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальные окна -->
+    
+    <!-- Корзина -->
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" data-translate="cart">Корзина</h2>
+                        <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="cart-items" class="space-y-4 mb-6">
+                        <!-- Товары в корзине -->
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xl font-bold" data-translate="total">Итого:</span>
+                            <span class="text-xl font-bold" id="cart-modal-total">0 сом</span>
+                        </div>
+                        <button onclick="showCheckout()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold" data-translate="checkout">
+                            Оформить заказ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оформление заказа -->
+    <div id="checkout-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Оформление заказа</h2>
+                        <button onclick="hideCheckout()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="checkout-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" data-translate="fullName">ФИО</label>
+                            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" data-translate="contactType">Тип связи</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option>WhatsApp</option>
+                                <option>Звонок</option>
+                                <option>Telegram</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" data-translate="phoneNumber">Номер телефона</label>
+                            <input type="tel" required placeholder="+996 555 123 456" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-semibold" data-translate="orderAmount">Сумма заказа:</span>
+                                <span class="font-bold text-lg" id="checkout-total">0 сом</span>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold" data-translate="confirmOrder">
+                                Подтвердить заказ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Избранное -->
+    <div id="favorites-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-96 overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Избранное</h2>
+                        <button onclick="toggleFavorites()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="favorites-items" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Избранные товары -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Детальная страница товара -->
+    <div id="product-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" id="product-modal-title">Детали товара</h2>
+                        <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Галерея изображений -->
+                        <div>
+                            <div class="relative mb-4">
+                                <div id="main-product-image" class="text-8xl text-center bg-gray-100 rounded-lg p-8">
+                                    👗
+                                </div>
+                                <button onclick="prevImage()" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button onclick="nextImage()" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Миниатюры -->
+                            <div id="product-thumbnails" class="flex space-x-2 justify-center">
+                                <!-- Миниатюры будут добавлены через JS -->
+                            </div>
+                        </div>
+                        
+                        <!-- Информация о товаре -->
+                        <div>
+                            <h1 id="product-detail-name" class="text-3xl font-bold mb-2">Название товара</h1>
+                            <p id="product-detail-category" class="text-gray-600 mb-4">Категория</p>
+                            <p id="product-detail-price" class="text-3xl font-bold text-purple-600 mb-6">0 сом</p>
+                            
+                            <!-- Выбор цвета -->
+                            <div class="mb-6">
+                                <h3 class="font-semibold mb-3" data-translate="color">Цвет:</h3>
+                                <div id="color-options" class="flex flex-wrap gap-2">
+                                    <!-- Цвета будут добавлены через JS -->
+                                </div>
+                            </div>
+                            
+                            <!-- Выбор размера -->
+                            <div class="mb-6">
+                                <h3 class="font-semibold mb-3" data-translate="size">Размер:</h3>
+                                <div id="size-options" class="flex flex-wrap gap-2">
+                                    <!-- Размеры будут добавлены через JS -->
+                                </div>
+                            </div>
+                            
+                            <!-- Описание -->
+                            <div class="mb-6">
+                                <h3 class="font-semibold mb-3" data-translate="description">Описание:</h3>
+                                <p id="product-detail-description" class="text-gray-700 leading-relaxed">
+                                    Описание товара
+                                </p>
+                            </div>
+                            
+                            <!-- Кнопки действий -->
+                            <div class="flex space-x-4">
+                                <button onclick="addToCartFromModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold">
+                                    <i class="fas fa-cart-plus mr-2"></i>
+                                    <span data-translate="addToCart">В корзину</span>
+                                </button>
+                                <button onclick="toggleFavoriteFromModal()" id="favorite-btn-modal" class="px-6 py-3 border border-purple-600 text-purple-600 hover:bg-purple-50 rounded-lg">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Админ панель -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-6xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" data-translate="adminPanel">Панель администратора</h2>
+                        <button onclick="toggleAdmin()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Логин -->
+                    <div id="admin-login" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" data-translate="login">Логин</label>
+                            <input type="text" id="admin-username" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" data-translate="password">Пароль</label>
+                            <input type="password" id="admin-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <button onclick="adminLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg" data-translate="enter">
+                            Войти
+                        </button>
+                        <p class="text-sm text-gray-500">Демо: admin / admin123</p>
+                    </div>
+                    
+                    <!-- Админ панель -->
+                    <div id="admin-panel" class="hidden">
+                        <!-- Вкладки -->
+                        <div class="flex border-b mb-6">
+                            <button onclick="showAdminTab('add')" id="tab-add" class="px-4 py-2 border-b-2 border-blue-600 text-blue-600 font-semibold">
+                                Добавить товар
+                            </button>
+                            <button onclick="showAdminTab('manage')" id="tab-manage" class="px-4 py-2 text-gray-600 hover:text-blue-600">
+                                Управление товарами
+                            </button>
+                        </div>
+                        
+                        <!-- Добавление товара -->
+                        <div id="admin-add" class="space-y-6">
+                            <h3 class="text-lg font-semibold">Добавить новый товар</h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Основная информация -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Название (Русский)</label>
+                                        <input type="text" id="add-name-ru" class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Название (Кыргызский)</label>
+                                        <input type="text" id="add-name-ky" class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Цена (сом)</label>
+                                        <input type="number" id="add-price" class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Категория</label>
+                                        <select id="add-category" class="w-full px-3 py-2 border rounded-lg">
+                                            <option value="платья">Платья</option>
+                                            <option value="блузки">Блузки</option>
+                                            <option value="юбки">Юбки</option>
+                                            <option value="брюки">Брюки</option>
+                                            <option value="аксессуары">Аксессуары</option>
+                                            <option value="обувь">Обувь</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Описание и характеристики -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Описание (Русский)</label>
+                                        <textarea id="add-description-ru" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Описание (Кыргызский)</label>
+                                        <textarea id="add-description-ky" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Размеры (через запятую)</label>
+                                        <input type="text" id="add-sizes" placeholder="S, M, L, XL" class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Цвета -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Доступные цвета</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">Русский</label>
+                                        <div id="add-colors-ru" class="space-y-2">
+                                            <div class="flex">
+                                                <input type="text" placeholder="Красный" class="flex-1 px-3 py-2 border rounded-l-lg">
+                                                <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button onclick="addColorInput('ru')" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm">
+                                            + Добавить цвет
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">Кыргызский</label>
+                                        <div id="add-colors-ky" class="space-y-2">
+                                            <div class="flex">
+                                                <input type="text" placeholder="Кызыл" class="flex-1 px-3 py-2 border rounded-l-lg">
+                                                <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button onclick="addColorInput('ky')" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm">
+                                            + Добавить цвет
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Изображения -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Изображения товара</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                        <p class="text-gray-600 mb-4">Загрузите изображения товара</p>
+                                        <input type="file" id="add-images" multiple accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                                        <button onclick="document.getElementById('add-images').click()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                                            Выбрать файлы
+                                        </button>
+                                        <p class="text-sm text-gray-500 mt-2">Или используйте эмодзи для демо</p>
+                                        <div class="mt-4">
+                                            <input type="text" id="add-emoji" placeholder="👗 🌸 🌺 🌻" class="px-3 py-2 border rounded-lg">
+                                            <button onclick="addEmojiImages()" class="ml-2 bg-purple-500 text-white px-3 py-2 rounded-lg">
+                                                Использовать эмодзи
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="image-preview" class="mt-4 grid grid-cols-4 gap-2 hidden">
+                                        <!-- Превью изображений -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="addNewProduct()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+                                <i class="fas fa-plus mr-2"></i>Добавить товар
+                            </button>
+                        </div>
+                        
+                        <!-- Управление товарами -->
+                        <div id="admin-manage" class="hidden">
+                            <h3 class="text-lg font-semibold mb-4">Управление товарами</h3>
+                            
+                            <!-- Поиск и фильтры -->
+                            <div class="flex space-x-4 mb-6">
+                                <input type="text" id="admin-search" placeholder="Поиск товаров..." class="flex-1 px-3 py-2 border rounded-lg">
+                                <select id="admin-filter" class="px-3 py-2 border rounded-lg">
+                                    <option value="">Все категории</option>
+                                    <option value="платья">Платья</option>
+                                    <option value="блузки">Блузки</option>
+                                    <option value="юбки">Юбки</option>
+                                    <option value="брюки">Брюки</option>
+                                    <option value="аксессуары">Аксессуары</option>
+                                    <option value="обувь">Обувь</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Список товаров -->
+                            <div id="admin-products-list" class="space-y-4">
+                                <!-- Товары будут добавлены через JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования товара -->
+    <div id="edit-product-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Редактировать товар</h2>
+                        <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Основная информация -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Название (Русский)</label>
+                                <input type="text" id="edit-name-ru" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Название (Кыргызский)</label>
+                                <input type="text" id="edit-name-ky" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Цена (сом)</label>
+                                <input type="number" id="edit-price" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Категория</label>
+                                <select id="edit-category" class="w-full px-3 py-2 border rounded-lg">
+                                    <option value="платья">Платья</option>
+                                    <option value="блузки">Блузки</option>
+                                    <option value="юбки">Юбки</option>
+                                    <option value="брюки">Брюки</option>
+                                    <option value="аксессуары">Аксессуары</option>
+                                    <option value="обувь">Обувь</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Описание и характеристики -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Описание (Русский)</label>
+                                <textarea id="edit-description-ru" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Описание (Кыргызский)</label>
+                                <textarea id="edit-description-ky" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Размеры (через запятую)</label>
+                                <input type="text" id="edit-sizes" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Цвета -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium mb-2">Доступные цвета</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Русский</label>
+                                <div id="edit-colors-ru" class="space-y-2">
+                                    <!-- Цвета будут добавлены через JS -->
+                                </div>
+                                <button onclick="addEditColorInput('ru')" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm">
+                                    + Добавить цвет
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Кыргызский</label>
+                                <div id="edit-colors-ky" class="space-y-2">
+                                    <!-- Цвета будут добавлены через JS -->
+                                </div>
+                                <button onclick="addEditColorInput('ky')" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm">
+                                    + Добавить цвет
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Изображения -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium mb-2">Изображения товара</label>
+                        <div id="edit-images-container" class="grid grid-cols-4 gap-2 mb-4">
+                            <!-- Изображения будут добавлены через JS -->
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="edit-emoji" placeholder="Добавить эмодзи" class="flex-1 px-3 py-2 border rounded-lg">
+                            <button onclick="addEditEmoji()" class="bg-purple-500 text-white px-4 py-2 rounded-lg">
+                                Добавить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="saveProductChanges()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold">
+                            <i class="fas fa-save mr-2"></i>Сохранить изменения
+                        </button>
+                        <button onclick="closeEditModal()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg">
+                            Отмена
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные
+        let products = [
+            {
+                id: 1, 
+                name: 'Летнее платье', 
+                nameKy: 'Жайкы көйнөк',
+                price: 2500, 
+                category: 'платья', 
+                categoryKy: 'көйнөктөр',
+                image: '👗',
+                images: ['👗', '🌸', '🌺', '🌻'],
+                colors: ['Красный', 'Синий', 'Зеленый', 'Черный'],
+                colorsKy: ['Кызыл', 'Көк', 'Жашыл', 'Кара'],
+                description: 'Легкое летнее платье из натурального хлопка. Идеально подходит для жарких дней.',
+                descriptionKy: 'Табигый пахтадан жасалган жеңил жайкы көйнөк. Ысык күндөр үчүн эң ылайыктуу.',
+                sizes: ['S', 'M', 'L', 'XL']
+            },
+            {
+                id: 2, 
+                name: 'Шелковая блузка', 
+                nameKy: 'Жибек блузка',
+                price: 1800, 
+                category: 'блузки', 
+                categoryKy: 'блузкалар',
+                image: '👚',
+                images: ['👚', '✨', '💫', '🌟'],
+                colors: ['Белый', 'Розовый', 'Бежевый'],
+                colorsKy: ['Ак', 'Кызгылт', 'Беж'],
+                description: 'Элегантная блузка из натурального шелка для деловых встреч.',
+                descriptionKy: 'Иш жолугушуулары үчүн табигый жибектен жасалган элегантуу блузка.',
+                sizes: ['S', 'M', 'L']
+            },
+            {
+                id: 3, 
+                name: 'Классическая юбка', 
+                nameKy: 'Классикалык белдемче',
+                price: 1500, 
+                category: 'юбки', 
+                categoryKy: 'белдемчелер',
+                image: '👗',
+                images: ['👗', '📏', '✂️', '🎀'],
+                colors: ['Черный', 'Серый', 'Темно-синий'],
+                colorsKy: ['Кара', 'Боз', 'Кою көк'],
+                description: 'Классическая юбка-карандаш для офиса и деловых встреч.',
+                descriptionKy: 'Кеңсе жана иш жолугушуулары үчүн классикалык карандаш белдемче.',
+                sizes: ['XS', 'S', 'M', 'L']
+            },
+            {
+                id: 4, 
+                name: 'Деловые брюки', 
+                nameKy: 'Иш шымдары',
+                price: 2200, 
+                category: 'брюки', 
+                categoryKy: 'шымдар',
+                image: '👖',
+                images: ['👖', '💼', '👔', '🏢'],
+                colors: ['Черный', 'Темно-серый', 'Темно-синий'],
+                colorsKy: ['Кара', 'Кою боз', 'Кою көк'],
+                description: 'Стильные деловые брюки из качественной ткани.',
+                descriptionKy: 'Сапаттуу кездемеден жасалган стилдүү иш шымдары.',
+                sizes: ['S', 'M', 'L', 'XL']
+            },
+            {
+                id: 5, 
+                name: 'Золотые серьги', 
+                nameKy: 'Алтын сырга',
+                price: 3500, 
+                category: 'аксессуары', 
+                categoryKy: 'аксессуарлар',
+                image: '💎',
+                images: ['💎', '✨', '👂', '💍'],
+                colors: ['Золотой', 'Серебряный'],
+                colorsKy: ['Алтын', 'Күмүш'],
+                description: 'Элегантные золотые серьги с кристаллами.',
+                descriptionKy: 'Кристаллдар менен безендирилген элегантуу алтын сыргалар.',
+                sizes: ['Универсальный']
+            },
+            {
+                id: 6, 
+                name: 'Туфли на каблуке', 
+                nameKy: 'Өкчөлүү туфли',
+                price: 4200, 
+                category: 'обувь', 
+                categoryKy: 'бут кийим',
+                image: '👠',
+                images: ['👠', '👗', '💃', '✨'],
+                colors: ['Черный', 'Красный', 'Бежевый'],
+                colorsKy: ['Кара', 'Кызыл', 'Беж'],
+                description: 'Стильные туфли на высоком каблуке для особых случаев.',
+                descriptionKy: 'Өзгөчө учурлар үчүн бийик өкчөлүү стилдүү туфли.',
+                sizes: ['36', '37', '38', '39', '40']
+            },
+            {
+                id: 7, 
+                name: 'Вечернее платье', 
+                nameKy: 'Кечки көйнөк',
+                price: 5500, 
+                category: 'платья', 
+                categoryKy: 'көйнөктөр',
+                image: '👗',
+                images: ['👗', '🌙', '⭐', '🎭'],
+                colors: ['Черный', 'Темно-синий', 'Бордовый'],
+                colorsKy: ['Кара', 'Кою көк', 'Бордо'],
+                description: 'Роскошное вечернее платье для торжественных мероприятий.',
+                descriptionKy: 'Салтанаттуу иш-чаралар үчүн сонун кечки көйнөк.',
+                sizes: ['S', 'M', 'L']
+            },
+            {
+                id: 8, 
+                name: 'Кашемировый свитер', 
+                nameKy: 'Кашемир свитер',
+                price: 3200, 
+                category: 'блузки', 
+                categoryKy: 'блузкалар',
+                image: '🧥',
+                images: ['🧥', '🐑', '❄️', '🔥'],
+                colors: ['Серый', 'Бежевый', 'Темно-синий'],
+                colorsKy: ['Боз', 'Беж', 'Кою көк'],
+                description: 'Мягкий кашемировый свитер для холодных дней.',
+                descriptionKy: 'Суук күндөр үчүн жумшак кашемир свитер.',
+                sizes: ['S', 'M', 'L', 'XL']
+            }
+        ];
+
+        let cart = [];
+        let favorites = [];
+        let currentFilter = '';
+        let currentLanguage = 'ru';
+        let selectedProduct = null;
+        let selectedColor = '';
+        let selectedSize = '';
+        let currentImageIndex = 0;
+
+        // Переводы
+        const translations = {
+            ru: {
+                search: 'Поиск товаров...',
+                catalog: 'Каталог',
+                cart: 'Корзина',
+                favorites: 'Избранное',
+                popular: 'Популярные товары',
+                aboutUs: 'О нас',
+                fastDelivery: 'Быстрая доставка',
+                fastDeliveryDesc: 'Доставка по Бишкеку в течение дня',
+                qualityGuarantee: 'Гарантия качества',
+                qualityGuaranteeDesc: 'Только качественные материалы',
+                affordablePrices: 'Доступные цены',
+                affordablePricesDesc: 'Лучшие цены на рынке',
+                individualApproach: 'Индивидуальный подход',
+                individualApproachDesc: 'Персональные консультации',
+                howToBuy: 'Как купить',
+                selectProduct: 'Выберите товар',
+                selectProductDesc: 'Просмотрите каталог и добавьте понравившиеся товары в корзину',
+                placeOrder: 'Оформите заказ',
+                placeOrderDesc: 'Заполните форму с контактными данными',
+                receiveProduct: 'Получите товар',
+                receiveProductDesc: 'Мы свяжемся с вами для подтверждения и доставки',
+                faq: 'Частые вопросы',
+                howToOrder: 'Как оформить заказ?',
+                paymentMethods: 'Способы оплаты',
+                returnPolicy: 'Возможен ли возврат товара?',
+                onMap: 'Мы на карте',
+                contacts: 'Контакты',
+                workSchedule: 'График работы',
+                address: 'Адрес',
+                total: 'Итого',
+                checkout: 'Оформить заказ',
+                fullName: 'ФИО',
+                contactType: 'Тип связи',
+                phoneNumber: 'Номер телефона',
+                orderAmount: 'Сумма заказа',
+                confirmOrder: 'Подтвердить заказ',
+                addToCart: 'В корзину',
+                color: 'Цвет',
+                size: 'Размер',
+                description: 'Описание',
+                adminPanel: 'Панель администратора',
+                login: 'Логин',
+                password: 'Пароль',
+                enter: 'Войти',
+                addProduct: 'Добавить товар',
+                productName: 'Название товара',
+                price: 'Цена',
+                category: 'Категория',
+                add: 'Добавить'
+            },
+            ky: {
+                search: 'Товарларды издөө...',
+                catalog: 'Каталог',
+                cart: 'Себет',
+                favorites: 'Тандалгандар',
+                popular: 'Популярдуу товарлар',
+                aboutUs: 'Биз жөнүндө',
+                fastDelivery: 'Тез жеткирүү',
+                fastDeliveryDesc: 'Бишкек боюнча бир күндө жеткирүү',
+                qualityGuarantee: 'Сапат кепилдиги',
+                qualityGuaranteeDesc: 'Сапаттуу материалдар гана',
+                affordablePrices: 'Жеткиликтүү баалар',
+                affordablePricesDesc: 'Базардагы эң мыкты баалар',
+                individualApproach: 'Жеке мамиле',
+                individualApproachDesc: 'Жеке консультациялар',
+                howToBuy: 'Кантип сатып алуу',
+                selectProduct: 'Товар тандаңыз',
+                selectProductDesc: 'Каталогду карап, жаккан товарларды себетке кошуңуз',
+                placeOrder: 'Заказ берүү',
+                placeOrderDesc: 'Байланыш маалыматтары менен форманы толтуруңуз',
+                receiveProduct: 'Товарды алуу',
+                receiveProductDesc: 'Биз сиз менен ырастоо жана жеткирүү үчүн байланышабыз',
+                faq: 'Көп берилүүчү суроолор',
+                howToOrder: 'Заказ кантип берилет?',
+                paymentMethods: 'Төлөө ыкмалары',
+                returnPolicy: 'Товарды кайтаруу мүмкүнбү?',
+                onMap: 'Биз картада',
+                contacts: 'Байланыштар',
+                workSchedule: 'Иш графиги',
+                address: 'Дарек',
+                total: 'Жалпы',
+                checkout: 'Заказ берүү',
+                fullName: 'Аты-жөнү',
+                contactType: 'Байланыш түрү',
+                phoneNumber: 'Телефон номери',
+                orderAmount: 'Заказдын суммасы',
+                confirmOrder: 'Заказды ырастоо',
+                addToCart: 'Себетке',
+                color: 'Түс',
+                size: 'Өлчөм',
+                description: 'Сүрөттөмө',
+                adminPanel: 'Администратор панели',
+                login: 'Логин',
+                password: 'Сыр сөз',
+                enter: 'Кирүү',
+                addProduct: 'Товар кошуу',
+                productName: 'Товардын аталышы',
+                price: 'Баасы',
+                category: 'Категория',
+                add: 'Кошуу'
+            }
+        };
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            updateCartDisplay();
+            updateLanguage();
+            
+            // Поиск
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                searchProducts(e.target.value);
+            });
+            
+            // Смена языка
+            document.getElementById('language-select').addEventListener('change', function(e) {
+                currentLanguage = e.target.value;
+                updateLanguage();
+                renderProducts();
+            });
+            
+            // Обработка формы заказа
+            document.getElementById('checkout-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                processOrder();
+            });
+        });
+
+        // Функция смены языка
+        function updateLanguage() {
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+            
+            // Обновляем placeholder'ы
+            const placeholderElements = document.querySelectorAll('[data-translate-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-translate-placeholder');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.placeholder = translations[currentLanguage][key];
+                }
+            });
+            
+            // Обновляем поиск
+            document.getElementById('search-input').placeholder = translations[currentLanguage].search;
+        }
+
+        // Открытие модального окна товара
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            selectedProduct = product;
+            selectedColor = product.colors[0];
+            selectedSize = product.sizes[0];
+            currentImageIndex = 0;
+            
+            // Заполняем информацию о товаре
+            document.getElementById('product-detail-name').textContent = currentLanguage === 'ru' ? product.name : product.nameKy;
+            document.getElementById('product-detail-category').textContent = currentLanguage === 'ru' ? product.category : product.categoryKy;
+            document.getElementById('product-detail-price').textContent = product.price + ' сом';
+            document.getElementById('product-detail-description').textContent = currentLanguage === 'ru' ? product.description : product.descriptionKy;
+            
+            // Обновляем изображения
+            updateProductImages();
+            
+            // Обновляем опции цвета
+            updateColorOptions();
+            
+            // Обновляем опции размера
+            updateSizeOptions();
+            
+            // Показываем модальное окно
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        // Закрытие модального окна товара
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            selectedProduct = null;
+        }
+
+        // Обновление изображений товара
+        function updateProductImages() {
+            if (!selectedProduct) return;
+            
+            const mainImage = document.getElementById('main-product-image');
+            mainImage.textContent = selectedProduct.images[currentImageIndex];
+            
+            const thumbnails = document.getElementById('product-thumbnails');
+            thumbnails.innerHTML = '';
+            
+            selectedProduct.images.forEach((image, index) => {
+                const thumbnail = document.createElement('button');
+                thumbnail.className = `text-2xl p-2 border rounded-lg hover:bg-gray-50 ${index === currentImageIndex ? 'border-purple-600 bg-purple-50' : 'border-gray-300'}`;
+                thumbnail.textContent = image;
+                thumbnail.onclick = () => {
+                    currentImageIndex = index;
+                    updateProductImages();
+                };
+                thumbnails.appendChild(thumbnail);
+            });
+        }
+
+        // Навигация по изображениям
+        function prevImage() {
+            if (!selectedProduct) return;
+            currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : selectedProduct.images.length - 1;
+            updateProductImages();
+        }
+
+        function nextImage() {
+            if (!selectedProduct) return;
+            currentImageIndex = currentImageIndex < selectedProduct.images.length - 1 ? currentImageIndex + 1 : 0;
+            updateProductImages();
+        }
+
+        // Обновление опций цвета
+        function updateColorOptions() {
+            if (!selectedProduct) return;
+            
+            const container = document.getElementById('color-options');
+            container.innerHTML = '';
+            
+            const colors = currentLanguage === 'ru' ? selectedProduct.colors : selectedProduct.colorsKy;
+            colors.forEach((color, index) => {
+                const colorBtn = document.createElement('button');
+                colorBtn.className = `px-4 py-2 border rounded-lg hover:bg-gray-50 ${selectedColor === selectedProduct.colors[index] ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-gray-300'}`;
+                colorBtn.textContent = color;
+                colorBtn.onclick = () => {
+                    selectedColor = selectedProduct.colors[index];
+                    updateColorOptions();
+                };
+                container.appendChild(colorBtn);
+            });
+        }
+
+        // Обновление опций размера
+        function updateSizeOptions() {
+            if (!selectedProduct) return;
+            
+            const container = document.getElementById('size-options');
+            container.innerHTML = '';
+            
+            selectedProduct.sizes.forEach(size => {
+                const sizeBtn = document.createElement('button');
+                sizeBtn.className = `px-4 py-2 border rounded-lg hover:bg-gray-50 ${selectedSize === size ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-gray-300'}`;
+                sizeBtn.textContent = size;
+                sizeBtn.onclick = () => {
+                    selectedSize = size;
+                    updateSizeOptions();
+                };
+                container.appendChild(sizeBtn);
+            });
+        }
+
+        // Добавление в корзину из модального окна
+        function addToCartFromModal() {
+            if (!selectedProduct || !selectedColor || !selectedSize) {
+                showNotification('Выберите цвет и размер');
+                return;
+            }
+            
+            const existingItem = cart.find(item => 
+                item.id === selectedProduct.id && 
+                item.selectedColor === selectedColor && 
+                item.selectedSize === selectedSize
+            );
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    ...selectedProduct, 
+                    quantity: 1,
+                    selectedColor: selectedColor,
+                    selectedSize: selectedSize
+                });
+            }
+            
+            updateCartDisplay();
+            showNotification('Товар добавлен в корзину!');
+            closeProductModal();
+        }
+
+        // Добавление в избранное из модального окна
+        function toggleFavoriteFromModal() {
+            if (!selectedProduct) return;
+            
+            const index = favorites.indexOf(selectedProduct.id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showNotification('Удалено из избранного');
+            } else {
+                favorites.push(selectedProduct.id);
+                showNotification('Добавлено в избранное');
+            }
+            
+            document.getElementById('favorites-count').textContent = favorites.length;
+            renderFavorites();
+        }
+
+        // Отображение товаров
+        function renderProducts(productsToShow = products) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+            
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg shadow hover:shadow-lg p-4';
+                productCard.innerHTML = `
+                    <div onclick="openProductModal(${product.id})" class="cursor-pointer">
+                        <div class="text-6xl text-center mb-4">${product.image}</div>
+                        <h3 class="font-semibold mb-2">${currentLanguage === 'ru' ? product.name : product.nameKy}</h3>
+                        <p class="text-gray-600 mb-2">${currentLanguage === 'ru' ? product.category : product.categoryKy}</p>
+                        <p class="text-xl font-bold text-purple-600 mb-4">${product.price} сом</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="addToCart(${product.id})" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg">
+                            <i class="fas fa-cart-plus mr-1"></i><span data-translate="addToCart">В корзину</span>
+                        </button>
+                        <button onclick="toggleFavorite(${product.id})" class="px-3 py-2 border border-purple-600 text-purple-600 hover:bg-purple-50 rounded-lg">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        // Фильтрация по категориям
+        function filterByCategory(category) {
+            currentFilter = category;
+            const filtered = products.filter(p => p.category === category);
+            renderProducts(filtered);
+            
+            // Закрыть каталог
+            document.getElementById('catalog-dropdown').classList.add('hidden');
+        }
+
+        // Поиск товаров
+        function searchProducts(query) {
+            if (!query) {
+                renderProducts();
+                return;
+            }
+            
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query.toLowerCase()) ||
+                p.category.toLowerCase().includes(query.toLowerCase())
+            );
+            renderProducts(filtered);
+        }
+
+        // Корзина
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({...product, quantity: 1});
+            }
+            
+            updateCartDisplay();
+            showNotification('Товар добавлен в корзину!');
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+            renderCartItems();
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                    renderCartItems();
+                }
+            }
+        }
+
+        function updateCartDisplay() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            document.getElementById('cart-count').textContent = count;
+            document.getElementById('cart-total').textContent = total;
+            document.getElementById('cart-modal-total').textContent = total + ' сом';
+            document.getElementById('checkout-total').textContent = total + ' сом';
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">Корзина пуста</p>';
+                return;
+            }
+            
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex items-center justify-between p-4 border rounded-lg';
+                cartItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">${item.image}</span>
+                        <div>
+                            <h4 class="font-semibold">${item.name}</h4>
+                            <p class="text-gray-600">${item.price} сом</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="w-8 h-8 bg-gray-200 rounded-full">-</button>
+                        <span class="w-8 text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="w-8 h-8 bg-gray-200 rounded-full">+</button>
+                        <button onclick="removeFromCart(${item.id})" class="ml-2 text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(cartItem);
+            });
+        }
+
+        // Избранное
+        function toggleFavorite(productId) {
+            const index = favorites.indexOf(productId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(productId);
+            }
+            
+            document.getElementById('favorites-count').textContent = favorites.length;
+            renderFavorites();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favorites-items');
+            container.innerHTML = '';
+            
+            if (favorites.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center col-span-3">Нет избранных товаров</p>';
+                return;
+            }
+            
+            favorites.forEach(productId => {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    const favoriteItem = document.createElement('div');
+                    favoriteItem.className = 'bg-gray-50 p-4 rounded-lg text-center';
+                    favoriteItem.innerHTML = `
+                        <div class="text-4xl mb-2">${product.image}</div>
+                        <h4 class="font-semibold mb-1">${product.name}</h4>
+                        <p class="text-purple-600 font-bold">${product.price} сом</p>
+                        <button onclick="addToCart(${product.id})" class="mt-2 w-full bg-purple-600 text-white py-1 rounded">
+                            В корзину
+                        </button>
+                    `;
+                    container.appendChild(favoriteItem);
+                }
+            });
+        }
+
+        // Модальные окна
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderCartItems();
+            }
+        }
+
+        function toggleCatalog() {
+            document.getElementById('catalog-dropdown').classList.toggle('hidden');
+        }
+
+        function toggleFavorites() {
+            const modal = document.getElementById('favorites-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderFavorites();
+            }
+        }
+
+        function showCheckout() {
+            document.getElementById('cart-modal').classList.add('hidden');
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function hideCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        // FAQ
+        function toggleFAQ(id) {
+            const faq = document.getElementById(`faq-${id}`);
+            faq.classList.toggle('hidden');
+        }
+
+        // Обработка заказа
+        async function processOrder() {
+            const form = document.getElementById('checkout-form');
+            const formData = new FormData(form);
+            
+            const orderData = {
+                name: formData.get('name') || form.querySelector('input[type="text"]').value,
+                contactType: formData.get('contactType') || form.querySelector('select').value,
+                phone: formData.get('phone') || form.querySelector('input[type="tel"]').value,
+                items: cart,
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+            };
+            
+            // Отправка в Telegram бот
+            await sendOrderToTelegram(orderData);
+            
+            showNotification('Заказ оформлен! Мы свяжемся с вами в ближайшее время.');
+            cart = [];
+            updateCartDisplay();
+            hideCheckout();
+        }
+
+        // Функция отправки заказа в Telegram
+        async function sendOrderToTelegram(orderData) {
+            // ВАЖНО: Замените эти данные на ваши!
+            const BOT_TOKEN = '8422528337:AAHj3XHauaQfo3g7cKwcrfbaIypHoJo6s2o'; // Получите у @BotFather
+            const CHAT_ID = '5302637195';     // Ваш chat_id или chat_id группы
+            
+            // Формируем сообщение
+            let message = `🛍️ *НОВЫЙ ЗАКАЗ*\n\n`;
+            message += `👤 *Клиент:* ${orderData.name}\n`;
+            message += `📞 *Телефон:* ${orderData.phone}\n`;
+            message += `💬 *Связь:* ${orderData.contactType}\n\n`;
+            message += `📦 *Товары:*\n`;
+            
+            orderData.items.forEach((item, index) => {
+                message += `${index + 1}. ${item.name}\n`;
+                message += `   • Цена: ${item.price} сом\n`;
+                message += `   • Количество: ${item.quantity} шт\n`;
+                if (item.selectedColor) message += `   • Цвет: ${item.selectedColor}\n`;
+                if (item.selectedSize) message += `   • Размер: ${item.selectedSize}\n`;
+                message += `   • Сумма: ${item.price * item.quantity} сом\n\n`;
+            });
+            
+            message += `💰 *ИТОГО: ${orderData.total} сом*\n\n`;
+            message += `📅 *Время заказа:* ${new Date().toLocaleString('ru-RU')}`;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка отправки в Telegram');
+                }
+                
+                console.log('Заказ успешно отправлен в Telegram');
+            } catch (error) {
+                console.error('Ошибка отправки заказа:', error);
+                // Показываем уведомление об ошибке, но не блокируем оформление заказа
+                showNotification('Заказ оформлен, но возникла проблема с уведомлением. Мы свяжемся с вами!', 'warning');
+            }
+        }
+
+        // Переменные для админки
+        let currentEditingProduct = null;
+        let currentAdminTab = 'add';
+        let tempImages = [];
+
+        // Админ панель
+        function toggleAdmin() {
+            document.getElementById('admin-modal').classList.toggle('hidden');
+        }
+
+        function adminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (username === 'admin' && password === 'admin123') {
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                showAdminTab('add');
+                renderAdminProductsList();
+            } else {
+                showNotification('Неверные данные для входа');
+            }
+        }
+
+        // Переключение вкладок админки
+        function showAdminTab(tab) {
+            currentAdminTab = tab;
+            
+            // Скрыть все вкладки
+            document.getElementById('admin-add').classList.add('hidden');
+            document.getElementById('admin-manage').classList.add('hidden');
+            
+            // Убрать активные стили
+            document.getElementById('tab-add').className = 'px-4 py-2 text-gray-600 hover:text-blue-600';
+            document.getElementById('tab-manage').className = 'px-4 py-2 text-gray-600 hover:text-blue-600';
+            
+            // Показать нужную вкладку
+            if (tab === 'add') {
+                document.getElementById('admin-add').classList.remove('hidden');
+                document.getElementById('tab-add').className = 'px-4 py-2 border-b-2 border-blue-600 text-blue-600 font-semibold';
+            } else if (tab === 'manage') {
+                document.getElementById('admin-manage').classList.remove('hidden');
+                document.getElementById('tab-manage').className = 'px-4 py-2 border-b-2 border-blue-600 text-blue-600 font-semibold';
+                renderAdminProductsList();
+            }
+        }
+
+        // Управление цветами в форме добавления
+        function addColorInput(lang) {
+            const container = document.getElementById(`add-colors-${lang}`);
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'flex';
+            colorDiv.innerHTML = `
+                <input type="text" placeholder="${lang === 'ru' ? 'Цвет' : 'Түс'}" class="flex-1 px-3 py-2 border rounded-l-lg">
+                <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            container.appendChild(colorDiv);
+        }
+
+        function removeColorInput(button) {
+            button.parentElement.remove();
+        }
+
+        // Управление изображениями
+        function handleImageUpload(input) {
+            const files = input.files;
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            preview.classList.remove('hidden');
+            
+            tempImages = [];
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    tempImages.push(e.target.result);
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'relative';
+                    imgDiv.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-20 object-cover rounded border">
+                        <button onclick="removeImage(${tempImages.length - 1})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                            ×
+                        </button>
+                    `;
+                    preview.appendChild(imgDiv);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addEmojiImages() {
+            const emojiInput = document.getElementById('add-emoji');
+            const emojis = emojiInput.value.trim().split(/\s+/);
+            
+            if (emojis.length > 0 && emojis[0] !== '') {
+                tempImages = emojis;
+                const preview = document.getElementById('image-preview');
+                preview.innerHTML = '';
+                preview.classList.remove('hidden');
+                
+                emojis.forEach((emoji, index) => {
+                    const emojiDiv = document.createElement('div');
+                    emojiDiv.className = 'relative text-center';
+                    emojiDiv.innerHTML = `
+                        <div class="text-4xl p-4 border rounded bg-gray-50">${emoji}</div>
+                        <button onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                            ×
+                        </button>
+                    `;
+                    preview.appendChild(emojiDiv);
+                });
+                
+                emojiInput.value = '';
+            }
+        }
+
+        function removeImage(index) {
+            tempImages.splice(index, 1);
+            const preview = document.getElementById('image-preview');
+            preview.children[index].remove();
+            
+            if (tempImages.length === 0) {
+                preview.classList.add('hidden');
+            }
+        }
+
+        // Добавление нового товара
+        function addNewProduct() {
+            const nameRu = document.getElementById('add-name-ru').value;
+            const nameKy = document.getElementById('add-name-ky').value;
+            const price = parseInt(document.getElementById('add-price').value);
+            const category = document.getElementById('add-category').value;
+            const descriptionRu = document.getElementById('add-description-ru').value;
+            const descriptionKy = document.getElementById('add-description-ky').value;
+            const sizes = document.getElementById('add-sizes').value.split(',').map(s => s.trim());
+            
+            // Собираем цвета
+            const colorsRu = [];
+            const colorsKy = [];
+            
+            document.querySelectorAll('#add-colors-ru input').forEach(input => {
+                if (input.value.trim()) colorsRu.push(input.value.trim());
+            });
+            
+            document.querySelectorAll('#add-colors-ky input').forEach(input => {
+                if (input.value.trim()) colorsKy.push(input.value.trim());
+            });
+            
+            if (!nameRu || !nameKy || !price || !category || tempImages.length === 0) {
+                showNotification('Заполните все обязательные поля и добавьте изображения');
+                return;
+            }
+            
+            const newProduct = {
+                id: Date.now(), // Уникальный ID
+                name: nameRu,
+                nameKy: nameKy,
+                price: price,
+                category: category,
+                categoryKy: getCategoryKy(category),
+                description: descriptionRu,
+                descriptionKy: descriptionKy,
+                sizes: sizes.length > 0 ? sizes : ['Универсальный'],
+                colors: colorsRu.length > 0 ? colorsRu : ['Стандартный'],
+                colorsKy: colorsKy.length > 0 ? colorsKy : ['Стандарттык'],
+                image: tempImages[0],
+                images: [...tempImages]
+            };
+            
+            products.push(newProduct);
+            renderProducts();
+            showNotification('Товар успешно добавлен!');
+            
+            // Очистить форму
+            clearAddForm();
+        }
+
+        function clearAddForm() {
+            document.getElementById('add-name-ru').value = '';
+            document.getElementById('add-name-ky').value = '';
+            document.getElementById('add-price').value = '';
+            document.getElementById('add-description-ru').value = '';
+            document.getElementById('add-description-ky').value = '';
+            document.getElementById('add-sizes').value = '';
+            document.getElementById('add-emoji').value = '';
+            
+            // Очистить цвета
+            document.getElementById('add-colors-ru').innerHTML = `
+                <div class="flex">
+                    <input type="text" placeholder="Красный" class="flex-1 px-3 py-2 border rounded-l-lg">
+                    <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('add-colors-ky').innerHTML = `
+                <div class="flex">
+                    <input type="text" placeholder="Кызыл" class="flex-1 px-3 py-2 border rounded-l-lg">
+                    <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Очистить изображения
+            tempImages = [];
+            document.getElementById('image-preview').classList.add('hidden');
+            document.getElementById('image-preview').innerHTML = '';
+        }
+
+        function getCategoryKy(categoryRu) {
+            const categoryMap = {
+                'платья': 'көйнөктөр',
+                'блузки': 'блузкалар',
+                'юбки': 'белдемчелер',
+                'брюки': 'шымдар',
+                'аксессуары': 'аксессуарлар',
+                'обувь': 'бут кийим'
+            };
+            return categoryMap[categoryRu] || categoryRu;
+        }
+
+        // Управление товарами
+        function renderAdminProductsList() {
+            const container = document.getElementById('admin-products-list');
+            container.innerHTML = '';
+            
+            let filteredProducts = [...products];
+            
+            // Применяем фильтры
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const categoryFilter = document.getElementById('admin-filter')?.value || '';
+            
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.nameKy.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (categoryFilter) {
+                filteredProducts = filteredProducts.filter(p => p.category === categoryFilter);
+            }
+            
+            filteredProducts.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'bg-gray-50 p-4 rounded-lg';
+                productDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">${product.image}</div>
+                            <div>
+                                <h4 class="font-semibold">${product.name}</h4>
+                                <p class="text-sm text-gray-600">${product.nameKy}</p>
+                                <p class="text-sm text-gray-600">${product.category} • ${product.price} сом</p>
+                                <p class="text-xs text-gray-500">Цвета: ${product.colors.join(', ')}</p>
+                                <p class="text-xs text-gray-500">Размеры: ${product.sizes.join(', ')}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editProduct(${product.id})" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </button>
+                            <button onclick="deleteProduct(${product.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(productDiv);
+            });
+            
+            // Добавляем обработчики поиска и фильтрации
+            document.getElementById('admin-search').oninput = renderAdminProductsList;
+            document.getElementById('admin-filter').onchange = renderAdminProductsList;
+        }
+
+        // Редактирование товара
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentEditingProduct = product;
+            
+            // Заполняем форму редактирования
+            document.getElementById('edit-name-ru').value = product.name;
+            document.getElementById('edit-name-ky').value = product.nameKy || '';
+            document.getElementById('edit-price').value = product.price;
+            document.getElementById('edit-category').value = product.category;
+            document.getElementById('edit-description-ru').value = product.description || '';
+            document.getElementById('edit-description-ky').value = product.descriptionKy || '';
+            document.getElementById('edit-sizes').value = product.sizes.join(', ');
+            
+            // Заполняем цвета
+            fillEditColors('ru', product.colors);
+            fillEditColors('ky', product.colorsKy || product.colors);
+            
+            // Заполняем изображения
+            fillEditImages(product.images);
+            
+            // Показываем модальное окно
+            document.getElementById('edit-product-modal').classList.remove('hidden');
+        }
+
+        function fillEditColors(lang, colors) {
+            const container = document.getElementById(`edit-colors-${lang}`);
+            container.innerHTML = '';
+            
+            colors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'flex';
+                colorDiv.innerHTML = `
+                    <input type="text" value="${color}" class="flex-1 px-3 py-2 border rounded-l-lg">
+                    <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                `;
+                container.appendChild(colorDiv);
+            });
+        }
+
+        function fillEditImages(images) {
+            const container = document.getElementById('edit-images-container');
+            container.innerHTML = '';
+            
+            images.forEach((image, index) => {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'relative text-center';
+                
+                if (image.startsWith('data:') || image.startsWith('http')) {
+                    imageDiv.innerHTML = `
+                        <img src="${image}" class="w-full h-20 object-cover rounded border">
+                        <button onclick="removeEditImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                            ×
+                        </button>
+                    `;
+                } else {
+                    imageDiv.innerHTML = `
+                        <div class="text-4xl p-4 border rounded bg-gray-50">${image}</div>
+                        <button onclick="removeEditImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                            ×
+                        </button>
+                    `;
+                }
+                
+                container.appendChild(imageDiv);
+            });
+        }
+
+        function addEditColorInput(lang) {
+            const container = document.getElementById(`edit-colors-${lang}`);
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'flex';
+            colorDiv.innerHTML = `
+                <input type="text" placeholder="${lang === 'ru' ? 'Цвет' : 'Түс'}" class="flex-1 px-3 py-2 border rounded-l-lg">
+                <button onclick="removeColorInput(this)" class="px-3 py-2 bg-red-500 text-white rounded-r-lg">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            container.appendChild(colorDiv);
+        }
+
+        function addEditEmoji() {
+            const emojiInput = document.getElementById('edit-emoji');
+            const emoji = emojiInput.value.trim();
+            
+            if (emoji) {
+                currentEditingProduct.images.push(emoji);
+                fillEditImages(currentEditingProduct.images);
+                emojiInput.value = '';
+            }
+        }
+
+        function removeEditImage(index) {
+            if (currentEditingProduct) {
+                currentEditingProduct.images.splice(index, 1);
+                fillEditImages(currentEditingProduct.images);
+            }
+        }
+
+        function saveProductChanges() {
+            if (!currentEditingProduct) return;
+            
+            // Обновляем данные товара
+            currentEditingProduct.name = document.getElementById('edit-name-ru').value;
+            currentEditingProduct.nameKy = document.getElementById('edit-name-ky').value;
+            currentEditingProduct.price = parseInt(document.getElementById('edit-price').value);
+            currentEditingProduct.category = document.getElementById('edit-category').value;
+            currentEditingProduct.categoryKy = getCategoryKy(currentEditingProduct.category);
+            currentEditingProduct.description = document.getElementById('edit-description-ru').value;
+            currentEditingProduct.descriptionKy = document.getElementById('edit-description-ky').value;
+            currentEditingProduct.sizes = document.getElementById('edit-sizes').value.split(',').map(s => s.trim());
+            
+            // Обновляем цвета
+            const colorsRu = [];
+            const colorsKy = [];
+            
+            document.querySelectorAll('#edit-colors-ru input').forEach(input => {
+                if (input.value.trim()) colorsRu.push(input.value.trim());
+            });
+            
+            document.querySelectorAll('#edit-colors-ky input').forEach(input => {
+                if (input.value.trim()) colorsKy.push(input.value.trim());
+            });
+            
+            currentEditingProduct.colors = colorsRu.length > 0 ? colorsRu : ['Стандартный'];
+            currentEditingProduct.colorsKy = colorsKy.length > 0 ? colorsKy : ['Стандарттык'];
+            
+            // Обновляем главное изображение
+            if (currentEditingProduct.images.length > 0) {
+                currentEditingProduct.image = currentEditingProduct.images[0];
+            }
+            
+            // Обновляем отображение
+            renderProducts();
+            renderAdminProductsList();
+            closeEditModal();
+            showNotification('Товар успешно обновлен!');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-product-modal').classList.add('hidden');
+            currentEditingProduct = null;
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+                products = products.filter(p => p.id !== productId);
+                renderProducts();
+                renderAdminProductsList();
+                showNotification('Товар удален');
+            }
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'warning' ? 'bg-yellow-500' : 'bg-green-500';
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Горячие клавиши для админки
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                toggleAdmin();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9749bfdf805d4ede',t:'MTc1NjExMDg1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
